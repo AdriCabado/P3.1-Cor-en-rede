@@ -5,37 +5,37 @@ using UnityEngine;
 namespace HelloWorld
 {
     /// <summary>
-    /// Attached to your player prefab (with a NetworkObject & Renderer).
-    /// Handles position RPCs and listens for color changes.
+    /// Adjuntar al prefab de jugador (con NetworkObject y Renderer).
+    /// Gestiona RPCs de posición y aplica cambios de color.
     /// </summary>
     public class HelloWorldPlayer : NetworkBehaviour
     {
         // =====================================================
-        // 1) Position synchronization via a NetworkVariable
+        // 1) Sincronización de posición con un NetworkVariable
         // =====================================================
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
 
         public override void OnNetworkSpawn()
         {
-            // If this client owns the object, request an initial Move
+            // Si este cliente es el propietario, solicita un Move inicial
             if (IsOwner)
             {
                 Move();
             }
 
-            // Hook up the color-change callback (see below)
+            // Engancha el callback de cambio de color (ver más abajo)
             PlayerColor.OnValueChanged += OnColorChanged;
-            // Apply any color already set before we spawned
+            // Aplica cualquier color ya definido antes de spawnear
             OnColorChanged(Color.white, PlayerColor.Value);
         }
 
-        // Called by GUI: either directly on the server or via Request RPC
+        // Invocado por la GUI: directamente en servidor o vía RPC de cliente
         public void Move()
         {
             SubmitPositionRequestRpc();
         }
 
-        // Client→Server RPC: server picks a random spot & writes to Position
+        // RPC Cliente→Servidor: el servidor elige posición aleatoria y la escribe en Position
         [Rpc(SendTo.Server)]
         private void SubmitPositionRequestRpc(RpcParams rpcParams = default)
         {
@@ -55,36 +55,35 @@ namespace HelloWorld
 
         private void Update()
         {
-            // All instances (client & server) lerp to the networked Position
+            // Todos (cliente y servidor) siguen la posición networkeada
             transform.position = Position.Value;
         }
 
-
         // =====================================================
-        // 2) Color assignment via a server-writable NetworkVariable
+        // 2) Asignación de color con un NetworkVariable escribible por servidor
         // =====================================================
         public NetworkVariable<Color> PlayerColor =
             new NetworkVariable<Color>(
                 writePerm: NetworkVariableWritePermission.Server
             );
 
-        // ServerRpc for clients to ask the server for a new color.
+        // RPC para que los clientes pidan un nuevo color al servidor.
         [ServerRpc(RequireOwnership = false)]
         public void RequestColorChangeServerRpc(ServerRpcParams rpcParams = default)
         {
-            // Ask the manager to reassign for this client
+            // Pide al manager reasignar color para este cliente
             ulong clientId = rpcParams.Receive.SenderClientId;
             var mgr       = FindFirstObjectByType<HelloWorldManager>();
             mgr.AssignNewColor(clientId);
         }
 
-        // Whenever PlayerColor.Value changes, this runs on all machines.
+        // Cada vez que PlayerColor.Value cambia, esto corre en todas las máquinas.
         private void OnColorChanged(Color oldColor, Color newColor)
         {
             var renderer = GetComponent<Renderer>();
             if (renderer == null) return;
 
-            // Clone material so tinting doesn’t bleed across instances
+            // Clona el material para que el tinte no afecte a todas las instancias
             renderer.material        = new Material(renderer.sharedMaterial);
             renderer.material.color  = newColor;
         }

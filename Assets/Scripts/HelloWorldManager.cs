@@ -7,14 +7,14 @@ using UnityEngine;
 namespace HelloWorld
 {
     /// <summary>
-    /// Attach to the same GameObject as your NetworkManager.
-    /// Handles lobby GUI, connection approval, and per-player color assignment.
+    /// Adjuntar al mismo GameObject que tu NetworkManager.
+    /// Maneja la GUI del lobby, la aprobación de conexiones y la asignación de color por jugador.
     /// </summary>
     public class HelloWorldManager : MonoBehaviour
     {
         private NetworkManager m_NetworkManager;
 
-        // The “master” list of 6 distinct colors we hand out.
+        // Lista “maestra” de 6 colores distintos que repartimos.
         private static readonly List<Color> MasterColors = new List<Color>
         {
             Color.red,
@@ -25,20 +25,20 @@ namespace HelloWorld
             Color.cyan
         };
 
-        // Working pool we draw from and reclaim into.
+        // Pool de trabajo de donde tomamos y devolvemos colores.
         private readonly List<Color> _colorPool = new List<Color>();
 
-        // Tracks which client ID currently holds which color.
+        // Asocia cada clientId con su color asignado.
         private readonly Dictionary<ulong, Color> _assignedColors = new Dictionary<ulong, Color>();
 
         private void Awake()
         {
             m_NetworkManager = GetComponent<NetworkManager>();
 
-            // Populate our working pool from the master list.
+            // Inicializa el pool de trabajo con la lista maestra.
             _colorPool.AddRange(MasterColors);
 
-            // Turn on Connection Approval before wiring callbacks.
+            // Activa la aprobación de conexión antes de enganchar los callbacks.
             m_NetworkManager.NetworkConfig.ConnectionApproval = true;
             m_NetworkManager.ConnectionApprovalCallback    += ApproveOrReject;
             m_NetworkManager.OnClientConnectedCallback    += OnClientConnected;
@@ -49,7 +49,7 @@ namespace HelloWorld
         {
             GUILayout.BeginArea(new Rect(10, 10, 300, 300));
 
-            // If we're neither client nor server yet, show Host/Client/Server buttons.
+            // Si aún no somos cliente ni servidor, mostramos los botones Host/Client/Server.
             if (!m_NetworkManager.IsClient && !m_NetworkManager.IsServer)
             {
                 if (GUILayout.Button("Host"))   m_NetworkManager.StartHost();
@@ -58,15 +58,15 @@ namespace HelloWorld
             }
             else
             {
-                // Otherwise show current transport & mode.
+                // Si ya estamos en modo red, mostramos transporte y modo actual.
                 var mode = m_NetworkManager.IsHost   ? "Host"
                          : m_NetworkManager.IsServer ? "Server"
                                                      : "Client";
-                GUILayout.Label("Transport: " +
+                GUILayout.Label("Transporte: " +
                     m_NetworkManager.NetworkConfig.NetworkTransport.GetType().Name);
-                GUILayout.Label("Mode: " + mode);
+                GUILayout.Label("Modo: " + mode);
 
-                // “Move” button: server moves everyone; client requests their own.
+                // Botón “Move”: el servidor mueve a todos; el cliente solicita su propio movimiento.
                 if (GUILayout.Button(
                     m_NetworkManager.IsServer && !m_NetworkManager.IsClient
                         ? "Move"
@@ -74,7 +74,7 @@ namespace HelloWorld
                 {
                     if (m_NetworkManager.IsServer && !m_NetworkManager.IsClient)
                     {
-                        // Server: iterate all connected clients
+                        // Servidor: iterar todos los clientes conectados
                         foreach (ulong uid in m_NetworkManager.ConnectedClientsIds)
                         {
                             var netObj = m_NetworkManager.SpawnManager
@@ -84,7 +84,7 @@ namespace HelloWorld
                     }
                     else
                     {
-                        // Client: just request on the local player
+                        // Cliente: solo solicita en el jugador local
                         var local = m_NetworkManager.SpawnManager
                             .GetLocalPlayerObject()
                             .GetComponent<HelloWorldPlayer>();
@@ -92,7 +92,7 @@ namespace HelloWorld
                     }
                 }
 
-                // “Change Color” button: only shown/runnable on any client (including host-as-client).
+                // Botón “Change Color”: solo mostrado/ejecutable en clientes (incluido el host como cliente).
                 if (m_NetworkManager.IsClient)
                 {
                     if (GUILayout.Button("Change Color"))
@@ -109,27 +109,27 @@ namespace HelloWorld
         }
 
         /// <summary>
-        /// Connection approval callback: reject if >=6 players, otherwise accept.
+        /// Callback de aprobación de conexión: rechaza si ya hay ≥6 jugadores; de lo contrario acepta.
         /// </summary>
         private void ApproveOrReject(NetworkManager.ConnectionApprovalRequest req, NetworkManager.ConnectionApprovalResponse res)
         {
             if (_assignedColors.Count >= MasterColors.Count)
             {
                 res.Approved = false;
-                res.Reason   = "Lobby is full (6 players max).";
+                res.Reason   = "Lobby lleno (máx. 6 jugadores).";
                 return;
             }
 
-            res.Approved          = true;
+            res.Approved           = true;
             res.CreatePlayerObject = true;
-            res.PlayerPrefabHash   = null;            // use default spawn prefab
-            res.Position           = Vector3.zero;    // spawn position
+            res.PlayerPrefabHash   = null;            // usa el prefab por defecto
+            res.Position           = Vector3.zero;    // posición de spawn
             res.Rotation           = Quaternion.identity;
         }
 
         /// <summary>
-        /// Called on the server when a new client is approved & connected.
-        /// Assigns that client a free color.
+        /// Ejecutado en el servidor cuando un cliente nuevo es aprobado y conectado.
+        /// Asigna a ese cliente un color libre.
         /// </summary>
         private void OnClientConnected(ulong clientId)
         {
@@ -137,8 +137,8 @@ namespace HelloWorld
         }
 
         /// <summary>
-        /// Called on the server when a client disconnects.
-        /// Reclaims their color back into the pool.
+        /// Ejecutado en el servidor cuando un cliente se desconecta.
+        /// Recupera su color y lo devuelve al pool.
         /// </summary>
         private void OnClientDisconnected(ulong clientId)
         {
@@ -150,33 +150,33 @@ namespace HelloWorld
         }
 
         /// <summary>
-        /// Server-side helper: reclaims any old color,
-        /// picks the next free one, stores the assignment,
-        /// and directly writes into the player’s NetworkVariable.
+        /// Helper en el servidor: recupera color antiguo,
+        /// toma el siguiente libre, guarda la asignación
+        /// y escribe directamente en el NetworkVariable del jugador.
         /// </summary>
         public void AssignNewColor(ulong clientId)
         {
-            // 1) If they had an old color, give it back.
+            // 1) Si ya tenía un color, lo devuelve al pool.
             if (_assignedColors.TryGetValue(clientId, out var old))
             {
                 _colorPool.Add(old);
             }
 
-            // 2) Safeguard.
+            // 2) Protección.
             if (_colorPool.Count == 0)
             {
-                Debug.LogWarning("No free colors to assign!");
+                Debug.LogWarning("¡No hay colores libres para asignar!");
                 return;
             }
 
-            // 3) Pop a new color from the pool.
+            // 3) Extrae un nuevo color del pool.
             Color newColor = _colorPool[0];
             _colorPool.RemoveAt(0);
 
-            // 4) Record the assignment.
+            // 4) Registra la asignación.
             _assignedColors[clientId] = newColor;
 
-            // 5) Fetch that player’s object and write directly to its NetworkVariable.
+            // 5) Obtiene el objeto del jugador y escribe directamente en su NetworkVariable.
             var player = m_NetworkManager.SpawnManager
                 .GetPlayerNetworkObject(clientId)
                 .GetComponent<HelloWorldPlayer>();
