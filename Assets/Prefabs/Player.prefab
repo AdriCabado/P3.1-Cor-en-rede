@@ -14,8 +14,8 @@ GameObject:
   - component: {fileID: 764594654863823182}
   - component: {fileID: 3664182917464584248}
   - component: {fileID: 583180768891214424}
-  - component: {fileID: 7294888218261860619}
   - component: {fileID: -4384294620139260458}
+  - component: {fileID: 5041639155376355248}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -63,6 +63,9 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RayTracingMode: 2
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -144,20 +147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e60cfb1863d046f47ba3a0a5af5d1178, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7294888218261860619
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 298930471280759579}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 99e30bc93d416bb4f99394b2b30c7db5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Position:
-    m_InternalValue: {x: 0, y: 0, z: 0}
 --- !u!114 &-4384294620139260458
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -189,3 +178,19 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &5041639155376355248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 298930471280759579}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 99e30bc93d416bb4f99394b2b30c7db5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Position:
+    m_InternalValue: {x: 0, y: 0, z: 0}
+  PlayerColor:
+    m_InternalValue: {r: 0, g: 0, b: 0, a: 0}
