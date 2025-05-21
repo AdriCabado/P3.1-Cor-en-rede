@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -10,6 +11,19 @@ namespace HelloWorld
     public class WorldManagerNoIA : MonoBehaviour
     {
         private NetworkManager m_NetworkManager;
+
+        private List<Color> Colors = new List<Color>
+        {
+            Color.yellow,
+            Color.cyan,
+            Color.blue,
+            Color.red,
+            Color.green,
+            Color.magenta
+        };
+
+        //diccionario de colores
+        private Dictionary<ulong, Color> AssignedColorsToClients = new Dictionary<ulong, Color>();
 
         private void Awake()
         {
@@ -67,5 +81,10 @@ namespace HelloWorld
                 }
             }
         }
+
+        public void AssignColor(){
+
+        }
+        
     }
 }

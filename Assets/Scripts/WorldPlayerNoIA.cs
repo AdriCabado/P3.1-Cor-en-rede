@@ -5,22 +5,27 @@ namespace HelloWorld
 {
     public class WorldPlayerNoIA : NetworkBehaviour
     {
+        private Renderer clientColor;
         public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
 
         public override void OnNetworkSpawn()
         {
             if (IsOwner)
             {
-                Move();
+                MoveAndTakeColors();
             }
         }
 
-        public void Move()
+        [Rpc(SendTo.Server)]
+
+         public void MoveAndTakeColors()
         {
             SubmitPositionRequestRpc();
+            
+            
+            OnColorChanged(Color.white, clientColor.material.color);
         }
 
-        [Rpc(SendTo.Server)]
         private void SubmitPositionRequestRpc(RpcParams rpcParams = default)
         {
             var randomPosition = GetRandomPositionOnPlane();
@@ -36,6 +41,20 @@ namespace HelloWorld
         private void Update()
         {
             transform.position = Position.Value;
+        }
+
+        public void SubmitColorChangeRequestRpc(Color oldColor, Color newColor)
+        {
+            
+            
+
+        }
+        private void OnColorChanged(Color oldColor, Color newColor)
+        {
+            clientColor = GetComponent<Renderer>();
+
+
+            clientColor.material.color = newColor;
         }
     }
 }
