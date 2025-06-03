@@ -41,7 +41,7 @@ namespace HelloWorld
         {
             Vector3 rnd = GetRandomPositionOnPlane();
             transform.position = rnd;
-            Position.Value    = rnd;
+            Position.Value = rnd;
         }
 
         private static Vector3 GetRandomPositionOnPlane()
@@ -73,7 +73,7 @@ namespace HelloWorld
         {
             // Pide al manager reasignar color para este cliente
             ulong clientId = rpcParams.Receive.SenderClientId;
-            var mgr       = FindFirstObjectByType<HelloWorldManager>();
+            var mgr = FindFirstObjectByType<HelloWorldManager>();
             mgr.AssignNewColor(clientId);
         }
 
@@ -84,8 +84,8 @@ namespace HelloWorld
             if (renderer == null) return;
 
             // Clona el material para que el tinte no afecte a todas las instancias
-            renderer.material        = new Material(renderer.sharedMaterial);
-            renderer.material.color  = newColor;
+            renderer.material = new Material(renderer.sharedMaterial);
+            renderer.material.color = newColor;
         }
     }
 }

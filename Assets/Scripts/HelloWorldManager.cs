@@ -40,9 +40,9 @@ namespace HelloWorld
 
             // Activa la aprobación de conexión antes de enganchar los callbacks.
             m_NetworkManager.NetworkConfig.ConnectionApproval = true;
-            m_NetworkManager.ConnectionApprovalCallback    += ApproveOrReject;
-            m_NetworkManager.OnClientConnectedCallback    += OnClientConnected;
-            m_NetworkManager.OnClientDisconnectCallback   += OnClientDisconnected;
+            m_NetworkManager.ConnectionApprovalCallback += ApproveOrReject;
+            m_NetworkManager.OnClientConnectedCallback += OnClientConnected;
+            m_NetworkManager.OnClientDisconnectCallback += OnClientDisconnected;
         }
 
         private void OnGUI()
@@ -52,14 +52,14 @@ namespace HelloWorld
             // Si aún no somos cliente ni servidor, mostramos los botones Host/Client/Server.
             if (!m_NetworkManager.IsClient && !m_NetworkManager.IsServer)
             {
-                if (GUILayout.Button("Host"))   m_NetworkManager.StartHost();
+                if (GUILayout.Button("Host")) m_NetworkManager.StartHost();
                 if (GUILayout.Button("Client")) m_NetworkManager.StartClient();
                 if (GUILayout.Button("Server")) m_NetworkManager.StartServer();
             }
             else
             {
                 // Si ya estamos en modo red, mostramos transporte y modo actual.
-                var mode = m_NetworkManager.IsHost   ? "Host"
+                var mode = m_NetworkManager.IsHost ? "Host"
                          : m_NetworkManager.IsServer ? "Server"
                                                      : "Client";
                 GUILayout.Label("Transporte: " +
@@ -116,15 +116,15 @@ namespace HelloWorld
             if (_assignedColors.Count >= MasterColors.Count)
             {
                 res.Approved = false;
-                res.Reason   = "Lobby lleno (máx. 6 jugadores).";
+                res.Reason = "Lobby lleno (máx. 6 jugadores).";
                 return;
             }
 
-            res.Approved           = true;
+            res.Approved = true;
             res.CreatePlayerObject = true;
-            res.PlayerPrefabHash   = null;            // usa el prefab por defecto
-            res.Position           = Vector3.zero;    // posición de spawn
-            res.Rotation           = Quaternion.identity;
+            res.PlayerPrefabHash = null;            // usa el prefab por defecto
+            res.Position = Vector3.zero;    // posición de spawn
+            res.Rotation = Quaternion.identity;
         }
 
         /// <summary>
